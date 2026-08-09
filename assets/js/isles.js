@@ -1,4 +1,4 @@
-/* start.js — 즐겨찾기 시작 페이지.
+/* isles.js — Private Isles. 내 링크를 모아둔 시작 페이지.
  *
  * 링크는 assets/data/links.json 하나가 원본입니다. HTML은 건드리지 않아도
  * 됩니다. 검색창에 치면 링크가 실시간으로 걸러지고, 걸리는 게 없으면

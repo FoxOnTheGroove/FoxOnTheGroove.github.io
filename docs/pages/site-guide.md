@@ -6,7 +6,7 @@
 ```
 /
 ├── index.html          프로필 · 첫 페이지
-├── start.html          즐겨찾기 탭 페이지
+├── private-isles.html  Private Isles — 내 링크 모음
 ├── calendar.html       캘린더
 ├── blog/
 │   ├── index.html      글 목록
@@ -41,7 +41,7 @@
 문서에는 `group` 필드를 쓸 수 있다. 목록 페이지에서 같은 `group`끼리 묶인다.
 `group`을 안 쓰면 "기타"로 들어간다.
 
-## 즐겨찾기 링크 고치기
+## Private Isles 링크 고치기
 
 `assets/data/links.json` 하나만 고치면 된다. HTML은 건드릴 필요 없다.
 
