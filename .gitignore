@@ -1,3 +1,7 @@
 # Private Isles의 평문 목록. 절대 커밋하지 않는다.
 # 커밋해서 올라가는 건 암호화된 isles.enc 뿐이다.
+#
+# 확장자를 뭉뚱그려 막는다. lock.js가 만드는 isles.json.bak 같은 사본이
+# 빠져나가는 걸 막기 위해서다.
 assets/data/isles.json
+assets/data/isles.json.*
