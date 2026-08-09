@@ -1,0 +1,35 @@
+[
+  {
+    "name": "개발",
+    "links": [
+      { "title": "GitHub",         "url": "https://github.com/FoxOnTheGroove" },
+      { "title": "MDN",            "url": "https://developer.mozilla.org/ko/" },
+      { "title": "Can I use",      "url": "https://caniuse.com/" },
+      { "title": "Stack Overflow", "url": "https://stackoverflow.com/" }
+    ]
+  },
+  {
+    "name": "AI",
+    "links": [
+      { "title": "Claude",      "url": "https://claude.ai/" },
+      { "title": "Claude Code", "url": "https://claude.ai/code" },
+      { "title": "Anthropic 문서", "url": "https://docs.anthropic.com/" }
+    ]
+  },
+  {
+    "name": "매일",
+    "links": [
+      { "title": "Gmail",    "url": "https://mail.google.com/" },
+      { "title": "캘린더",    "url": "https://calendar.google.com/" },
+      { "title": "드라이브",  "url": "https://drive.google.com/" },
+      { "title": "노션",      "url": "https://www.notion.so/" }
+    ]
+  },
+  {
+    "name": "읽을거리",
+    "links": [
+      { "title": "Hacker News", "url": "https://news.ycombinator.com/" },
+      { "title": "GeekNews",    "url": "https://news.hada.io/" }
+    ]
+  }
+]

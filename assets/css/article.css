@@ -1,0 +1,155 @@
+/* article.css — 마크다운 본문(블로그 글 / 문서) 스타일 */
+
+.article-header {
+  padding-bottom: var(--sp-6);
+  margin-bottom: var(--sp-8);
+  border-bottom: 1px solid var(--border);
+}
+.article-header h1 { font-size: 2.125rem; margin-bottom: var(--sp-3); }
+
+.article-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-3);
+  color: var(--text-faint);
+  font-size: 0.875rem;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: var(--sp-6);
+  font-size: 0.875rem;
+  text-decoration: none;
+  color: var(--text-muted);
+}
+.back-link:hover { color: var(--accent); }
+
+/* --- 본문 --------------------------------------------------------------- */
+
+.prose { font-size: 1.0625rem; }
+
+.prose > * + * { margin-top: var(--sp-4); }
+
+.prose h2 {
+  margin-top: var(--sp-12);
+  padding-bottom: var(--sp-2);
+  border-bottom: 1px solid var(--border);
+  font-size: 1.5rem;
+}
+.prose h3 { margin-top: var(--sp-8); font-size: 1.1875rem; }
+.prose h4 { margin-top: var(--sp-6); font-size: 1rem; color: var(--text-muted); }
+
+/* 제목 옆 앵커 링크 — article.js가 붙입니다. */
+.heading-anchor {
+  margin-left: var(--sp-2);
+  color: var(--text-faint);
+  text-decoration: none;
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+.prose h2:hover .heading-anchor,
+.prose h3:hover .heading-anchor,
+.heading-anchor:focus-visible { opacity: 1; }
+
+.prose ul, .prose ol { padding-left: 1.4em; }
+.prose li + li { margin-top: var(--sp-2); }
+.prose li::marker { color: var(--text-faint); }
+
+.prose blockquote {
+  margin-inline: 0;
+  padding: var(--sp-1) var(--sp-4);
+  border-left: 3px solid var(--border-strong);
+  color: var(--text-muted);
+}
+
+.prose code {
+  padding: 0.15em 0.4em;
+  background: var(--bg-sunken);
+  border-radius: 4px;
+  font-size: 0.875em;
+}
+
+.prose pre {
+  overflow-x: auto;
+  padding: var(--sp-4);
+  background: var(--bg-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  line-height: 1.6;
+}
+.prose pre code { padding: 0; background: none; font-size: 0.8125rem; }
+
+.prose img {
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+
+/* 표는 좁은 화면에서 가로로만 스크롤되게 감쌉니다. */
+.table-scroll { overflow-x: auto; }
+
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+.prose th, .prose td {
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+}
+.prose th { background: var(--bg-sunken); font-weight: 600; }
+
+.prose hr { margin-block: var(--sp-8); }
+
+/* --- 목차 --------------------------------------------------------------- */
+
+/* 넓은 화면에서는 본문 옆에, 좁은 화면에서는 본문 위에 접힌 채로 놓입니다. */
+.article-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--sp-8);
+}
+
+.toc { font-size: 0.875rem; }
+.toc__title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: var(--sp-3);
+}
+.toc ul { list-style: none; margin: 0; padding: 0; }
+.toc li { margin-bottom: var(--sp-2); }
+.toc li.toc--h3 { padding-left: var(--sp-4); }
+.toc a {
+  color: var(--text-muted);
+  text-decoration: none;
+  display: block;
+  line-height: 1.5;
+}
+.toc a:hover { color: var(--accent); }
+
+@media (min-width: 60rem) {
+  .article-layout {
+    grid-template-columns: minmax(0, 1fr) 13rem;
+    align-items: start;
+  }
+  .toc {
+    position: sticky;
+    top: calc(56px + var(--sp-8));
+    order: 2;
+  }
+  /* 목차가 없을 땐 본문이 폭을 다 씁니다. */
+  .article-layout:not(:has(.toc)) { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 60rem) {
+  .toc {
+    padding: var(--sp-4);
+    background: var(--bg-sunken);
+    border-radius: var(--radius);
+  }
+}

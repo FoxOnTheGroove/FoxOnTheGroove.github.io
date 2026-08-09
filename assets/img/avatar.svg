@@ -1,0 +1,6 @@
+<!-- 자리표시용 아바타. 사진으로 바꿀 땐 index.html의 src를 그 파일로 바꿉니다. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="">
+  <rect width="120" height="120" fill="#f2f1ef"/>
+  <circle cx="60" cy="47" r="21" fill="#d0cdc7"/>
+  <path d="M18 120a42 42 0 0 1 84 0z" fill="#d0cdc7"/>
+</svg>

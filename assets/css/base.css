@@ -1,0 +1,368 @@
+/* ==========================================================================
+   base.css — 사이트 전역 디자인 시스템
+   모든 페이지가 이 파일 하나를 공유합니다. 색·간격·타이포는 여기서만 고칩니다.
+   ========================================================================== */
+
+/* --- 1. 디자인 토큰 ------------------------------------------------------ */
+
+:root {
+  /* 라이트 테마가 기본값. 모든 색은 반드시 여기서 한 번 정의됩니다. */
+  --bg:            #fbfbfa;
+  --bg-raised:     #ffffff;
+  --bg-sunken:     #f2f1ef;
+  --bg-hover:      #efeeec;
+
+  --text:          #232220;
+  --text-muted:    #6b6862;
+  --text-faint:    #9a968e;
+
+  --border:        #e4e2de;
+  --border-strong: #d0cdc7;
+
+  --accent:        #b4553a;
+  --accent-hover:  #99452e;
+  --accent-soft:   #f6e9e4;
+
+  /* 타이포그래피 */
+  --font-sans: Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI",
+               "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --font-mono: "SFMono-Regular", Consolas, "JetBrains Mono", "D2Coding",
+               monospace;
+
+  /* 간격 — 4px 스케일 */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-6: 1.5rem;
+  --sp-8: 2rem;
+  --sp-12: 3rem;
+  --sp-16: 4rem;
+
+  --radius:    8px;
+  --radius-lg: 14px;
+
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 4px 12px rgb(0 0 0 / 0.05);
+
+  --content-width: 52rem;
+  --wide-width: 68rem;
+}
+
+/* 시스템 설정이 다크일 때. 사용자가 명시적으로 라이트를 고르면 적용 안 함. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:            #191918;
+    --bg-raised:     #222221;
+    --bg-sunken:     #131312;
+    --bg-hover:      #2c2c2a;
+
+    --text:          #eceae6;
+    --text-muted:    #a3a099;
+    --text-faint:    #75726c;
+
+    --border:        #2f2f2d;
+    --border-strong: #43423f;
+
+    --accent:        #e08a69;
+    --accent-hover:  #eda182;
+    --accent-soft:   #33231d;
+
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 14px rgb(0 0 0 / 0.35);
+  }
+}
+
+/* 토글로 다크를 명시한 경우 — 시스템 설정을 이깁니다. */
+:root[data-theme="dark"] {
+  --bg:            #191918;
+  --bg-raised:     #222221;
+  --bg-sunken:     #131312;
+  --bg-hover:      #2c2c2a;
+
+  --text:          #eceae6;
+  --text-muted:    #a3a099;
+  --text-faint:    #75726c;
+
+  --border:        #2f2f2d;
+  --border-strong: #43423f;
+
+  --accent:        #e08a69;
+  --accent-hover:  #eda182;
+  --accent-soft:   #33231d;
+
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 14px rgb(0 0 0 / 0.35);
+}
+
+/* --- 2. 리셋 ------------------------------------------------------------- */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+img, svg, video { max-width: 100%; height: auto; display: block; }
+
+h1, h2, h3, h4 {
+  line-height: 1.3;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  margin: 0;
+  text-wrap: balance;
+}
+
+h1 { font-size: 2rem; }
+h2 { font-size: 1.375rem; }
+h3 { font-size: 1.0625rem; }
+
+p { margin: 0; }
+
+a {
+  color: var(--accent);
+  text-decoration-color: color-mix(in srgb, var(--accent) 35%, transparent);
+  text-underline-offset: 3px;
+}
+a:hover { color: var(--accent-hover); text-decoration-color: currentColor; }
+
+code, pre, kbd { font-family: var(--font-mono); font-size: 0.875em; }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* --- 3. 레이아웃 --------------------------------------------------------- */
+
+.wrap {
+  width: 100%;
+  max-width: var(--content-width);
+  margin-inline: auto;
+  padding-inline: var(--sp-6);
+}
+.wrap--wide { max-width: var(--wide-width); }
+
+.stack > * + * { margin-top: var(--sp-4); }
+.stack-lg > * + * { margin-top: var(--sp-8); }
+
+main { padding-block: var(--sp-12) var(--sp-16); }
+
+/* --- 4. 헤더 / 내비게이션 ------------------------------------------------ */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+
+.site-header__inner {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-6);
+  height: 56px;
+  max-width: var(--wide-width);
+  margin-inline: auto;
+  padding-inline: var(--sp-6);
+}
+
+.site-logo {
+  font-weight: 700;
+  font-size: 0.9375rem;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.site-logo:hover { color: var(--text); }
+
+.site-nav {
+  display: flex;
+  gap: var(--sp-1);
+  margin-right: auto;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.site-nav::-webkit-scrollbar { display: none; }
+
+.site-nav a {
+  padding: var(--sp-1) var(--sp-3);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.12s, color 0.12s;
+}
+.site-nav a:hover { background: var(--bg-hover); color: var(--text); }
+
+/* 현재 페이지 표시 — 각 페이지에서 aria-current="page"를 직접 지정합니다. */
+.site-nav a[aria-current="page"] { color: var(--text); font-weight: 600; }
+
+.theme-toggle {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+.theme-toggle:hover { background: var(--bg-hover); color: var(--text); }
+.theme-toggle svg { width: 16px; height: 16px; }
+
+/* 아이콘 두 개 중 현재 테마에 맞는 것만 보여줍니다. */
+.theme-toggle .icon-moon { display: none; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .theme-toggle .icon-sun { display: none; }
+  :root:not([data-theme="light"]) .theme-toggle .icon-moon { display: block; }
+}
+:root[data-theme="dark"] .theme-toggle .icon-sun { display: none; }
+:root[data-theme="dark"] .theme-toggle .icon-moon { display: block; }
+:root[data-theme="light"] .theme-toggle .icon-sun { display: block; }
+:root[data-theme="light"] .theme-toggle .icon-moon { display: none; }
+
+/* --- 5. 푸터 ------------------------------------------------------------- */
+
+.site-footer {
+  border-top: 1px solid var(--border);
+  padding-block: var(--sp-8);
+  color: var(--text-faint);
+  font-size: 0.8125rem;
+}
+.site-footer__inner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-4);
+  justify-content: space-between;
+  max-width: var(--wide-width);
+  margin-inline: auto;
+  padding-inline: var(--sp-6);
+}
+.site-footer a { color: var(--text-muted); text-decoration: none; }
+.site-footer a:hover { color: var(--text); }
+
+/* --- 6. 공용 컴포넌트 ---------------------------------------------------- */
+
+.eyebrow {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.lede { font-size: 1.0625rem; color: var(--text-muted); }
+
+.card {
+  display: block;
+  padding: var(--sp-4) var(--sp-6);
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+}
+a.card:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+  color: inherit;
+}
+
+.grid {
+  display: grid;
+  gap: var(--sp-4);
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+}
+
+.tag {
+  display: inline-block;
+  padding: 1px var(--sp-2);
+  border-radius: 999px;
+  background: var(--bg-sunken);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  line-height: 1.6;
+}
+
+.meta { color: var(--text-faint); font-size: 0.8125rem; }
+
+/* 글 목록 — 홈의 "최근 글", 블로그 목록, 문서 목록이 함께 씁니다. */
+.post-list { list-style: none; margin: 0; padding: 0; }
+
+.post-list li + li { border-top: 1px solid var(--border); }
+
+.post-list a {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-4);
+  justify-content: space-between;
+  padding: var(--sp-3) 0;
+  color: inherit;
+  text-decoration: none;
+}
+.post-list a:hover .post-list__title { color: var(--accent); }
+
+.post-list__title { font-weight: 550; }
+.post-list__date { flex-shrink: 0; font-variant-numeric: tabular-nums; }
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin-block: var(--sp-8);
+}
+
+/* 로딩·오류 상태 — JS가 데이터를 못 불러왔을 때 표시됩니다. */
+.state {
+  padding: var(--sp-8);
+  text-align: center;
+  color: var(--text-faint);
+  font-size: 0.875rem;
+}
+
+/* 스크린리더 전용 */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* --- 7. 반응형 ----------------------------------------------------------- */
+
+@media (max-width: 640px) {
+  h1 { font-size: 1.625rem; }
+  .wrap { padding-inline: var(--sp-4); }
+  .site-header__inner, .site-footer__inner { padding-inline: var(--sp-4); }
+  main { padding-block: var(--sp-8) var(--sp-12); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
