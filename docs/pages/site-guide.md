@@ -6,7 +6,6 @@
 ```
 /
 ├── index.html          프로필 · 첫 페이지
-├── private-isles.html  Private Isles — 내 링크 모음
 ├── calendar.html       캘린더
 ├── blog/
 │   ├── index.html      글 목록
@@ -23,7 +22,7 @@
 └── assets/
     ├── css/            base.css가 전역 디자인
     ├── js/
-    └── data/           links.json · events.json
+    └── data/           events.json
 ```
 
 ## 글 추가하기
@@ -40,21 +39,6 @@
 
 문서에는 `group` 필드를 쓸 수 있다. 목록 페이지에서 같은 `group`끼리 묶인다.
 `group`을 안 쓰면 "기타"로 들어간다.
-
-## Private Isles 링크 고치기
-
-`assets/data/links.json` 하나만 고치면 된다. HTML은 건드릴 필요 없다.
-
-```json
-[
-  {
-    "name": "개발",
-    "links": [
-      { "title": "GitHub", "url": "https://github.com" }
-    ]
-  }
-]
-```
 
 ## 일정 추가하기
 

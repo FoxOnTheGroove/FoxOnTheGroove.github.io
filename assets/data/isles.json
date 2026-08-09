@@ -1,0 +1,44 @@
+{
+  "columns": 4,
+  "sites": [
+    {
+      "name": "GitHub",
+      "url": "https://github.com/FoxOnTheGroove",
+      "icon": "assets/icons/github.png"
+    },
+    {
+      "name": "Claude",
+      "url": "https://claude.ai/",
+      "icon": "assets/icons/claude.png"
+    },
+    {
+      "name": "Gmail",
+      "url": "https://mail.google.com/",
+      "icon": "assets/icons/gmail.ico"
+    },
+    {
+      "name": "캘린더",
+      "url": "https://calendar.google.com/"
+    },
+    {
+      "name": "드라이브",
+      "url": "https://drive.google.com/",
+      "icon": "assets/icons/drive-google-com.ico"
+    },
+    {
+      "name": "노션",
+      "url": "https://www.notion.so/",
+      "icon": "assets/icons/www-notion-so.ico"
+    },
+    {
+      "name": "MDN",
+      "url": "https://developer.mozilla.org/ko/",
+      "icon": "assets/icons/mdn.png"
+    },
+    {
+      "name": "GeekNews",
+      "url": "https://news.hada.io/",
+      "icon": "assets/icons/geeknews.ico"
+    }
+  ]
+}

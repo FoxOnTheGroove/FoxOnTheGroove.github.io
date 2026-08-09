@@ -1,0 +1,96 @@
+/* isles.css — Private Isles. 모바일 런치패드 화면.
+ *
+ * 격자 열 수는 isles.json의 columns가 정합니다. isles.js가 --cols에 넣습니다.
+ */
+
+.isles {
+  max-width: 32rem;
+  margin-inline: auto;
+  padding: var(--sp-8) var(--sp-4) var(--sp-16);
+}
+
+.isles__title {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: lowercase;
+  color: var(--text-faint);
+  text-align: center;
+  margin-bottom: var(--sp-8);
+}
+
+/* --- 아이콘 격자 --------------------------------------------------------- */
+
+.pad {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr));
+  gap: var(--sp-6) var(--sp-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.pad__item { display: flex; }
+
+.pad__link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  width: 100%;
+  color: inherit;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 아이콘 판. 가로세로 비율을 1:1로 고정해 열 수가 바뀌어도 정사각을 지킵니다. */
+.pad__icon {
+  position: relative;
+  width: 100%;
+  max-width: 60px;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: 24%;
+  box-shadow: var(--shadow);
+  transition: transform 0.12s ease;
+}
+
+.pad__link:active .pad__icon { transform: scale(0.9); }
+
+.pad__icon img {
+  width: 60%;
+  height: 60%;
+  object-fit: contain;
+}
+
+/* 아이콘 파일이 없을 때 쓰는 첫 글자 배지. */
+.pad__letter {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-faint);
+  text-transform: uppercase;
+}
+
+.pad__name {
+  font-size: 0.6875rem;
+  line-height: 1.35;
+  text-align: center;
+  color: var(--text-muted);
+  /* 이름이 길어도 두 줄까지만. 격자가 어긋나지 않게 합니다. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-all;
+}
+
+/* 화면이 넉넉하면 아이콘도 조금 키웁니다. */
+@media (min-width: 30rem) {
+  .pad { gap: var(--sp-8) var(--sp-3); }
+  .pad__icon { max-width: 68px; }
+  .pad__name { font-size: 0.75rem; }
+}
