@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>금고 도구 — Private Isles</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/css/base.css">
+<script src="/assets/js/theme.js"></script>
+<style>
+  .panel {
+    padding: var(--sp-6);
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+  }
+  .panel + .panel { margin-top: var(--sp-6); }
+  .panel h2 { font-size: 1.0625rem; margin-bottom: var(--sp-4); }
+
+  .field { display: block; margin-bottom: var(--sp-4); }
+  .field span {
+    display: block; margin-bottom: var(--sp-2);
+    font-size: 0.8125rem; color: var(--text-muted);
+  }
+
+  input[type="password"], input[type="file"], textarea {
+    width: 100%;
+    padding: var(--sp-3);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font: inherit; font-size: 0.875rem;
+  }
+  textarea {
+    min-height: 16rem;
+    font-family: var(--font-mono); font-size: 0.8125rem;
+    resize: vertical; white-space: pre;
+  }
+  input:focus, textarea:focus { outline: none; border-color: var(--accent); }
+
+  .btn {
+    padding: var(--sp-3) var(--sp-4);
+    background: var(--accent); border: 0; border-radius: var(--radius);
+    color: #fff; font: inherit; font-weight: 600; cursor: pointer;
+  }
+  .btn:disabled { opacity: 0.5; cursor: default; }
+  .btn--ghost {
+    background: transparent; color: var(--text-muted);
+    border: 1px solid var(--border); font-weight: 400;
+  }
+
+  .msg { margin-top: var(--sp-3); font-size: 0.8125rem; color: var(--text-faint); }
+  .msg--error { color: #c4483f; }
+  .msg--ok { color: #3f8f5c; }
+
+  .warn {
+    padding: var(--sp-4); margin-bottom: var(--sp-8);
+    background: var(--accent-soft);
+    border-radius: var(--radius);
+    font-size: 0.875rem;
+  }
+</style>
+</head>
+<body>
+
+<main class="wrap" style="max-width: 44rem; padding-block: var(--sp-12)">
+  <h1>금고 도구</h1>
+  <p class="lede" style="margin-top: var(--sp-3)">
+    Private Isles의 링크 목록을 암호화하고 다시 여는 도구입니다.
+    브라우저 안에서만 동작하고, 아무것도 서버로 보내지 않습니다.
+  </p>
+
+  <div class="warn" style="margin-top: var(--sp-8)">
+    <strong>비밀번호는 유일한 복구 수단입니다.</strong>
+    잊으면 데이터를 되찾을 방법이 없습니다. 폰의 지문 등록은 그 기기에만
+    저장되므로, 기기를 잃으면 비밀번호로만 열 수 있습니다.
+  </div>
+
+  <!-- 1. 열기 -->
+  <section class="panel">
+    <h2>1. 기존 금고 열기</h2>
+    <label class="field">
+      <span>isles.enc 파일</span>
+      <input type="file" id="open-file" accept=".enc,.json,application/json">
+    </label>
+    <label class="field">
+      <span>비밀번호</span>
+      <input type="password" id="open-pw" autocomplete="off">
+    </label>
+    <button class="btn" id="open-go" type="button">열기</button>
+    <p class="msg" id="open-msg"></p>
+  </section>
+
+  <!-- 2. 편집 -->
+  <section class="panel">
+    <h2>2. 내용 편집</h2>
+    <p class="meta" style="margin-bottom: var(--sp-3)">
+      <code>columns</code>가 격자 열 수, <code>sites</code>가 목록입니다.
+      아이콘은 이 파일을 <code>assets/data/isles.json</code>으로 저장한 뒤
+      <code>python tools/fetch_icons.py</code>를 돌리면 채워집니다.
+    </p>
+    <textarea id="plain" spellcheck="false">{
+  "columns": 4,
+  "sites": [
+    { "name": "GitHub", "url": "https://github.com/" }
+  ]
+}</textarea>
+    <div style="display: flex; gap: var(--sp-2); margin-top: var(--sp-3)">
+      <button class="btn btn--ghost" id="load-plain" type="button">평문 파일 불러오기</button>
+      <button class="btn btn--ghost" id="save-plain" type="button">평문으로 저장</button>
+    </div>
+    <input type="file" id="plain-file" accept=".json,application/json" hidden>
+    <p class="msg" id="plain-msg"></p>
+  </section>
+
+  <!-- 3. 잠그기 -->
+  <section class="panel">
+    <h2>3. 잠가서 내려받기</h2>
+    <label class="field">
+      <span>비밀번호</span>
+      <input type="password" id="new-pw" autocomplete="new-password">
+    </label>
+    <label class="field">
+      <span>비밀번호 확인</span>
+      <input type="password" id="new-pw2" autocomplete="new-password">
+    </label>
+    <button class="btn" id="lock-go" type="button">isles.enc 만들기</button>
+    <p class="msg" id="lock-msg"></p>
+    <p class="meta" style="margin-top: var(--sp-4)">
+      받은 파일을 <code>assets/data/isles.enc</code>에 덮어쓰고 커밋하면 반영됩니다.
+      비밀번호를 바꿔서 다시 만들면 폰에 등록해 둔 지문은 무효가 되므로,
+      폰에서 비밀번호로 한 번 열고 지문을 다시 등록해야 합니다.
+    </p>
+  </section>
+</main>
+
+<script src="/assets/js/vault.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  const $ = (id) => document.getElementById(id);
+
+  function say(el, text, kind) {
+    el.textContent = text;
+    el.className = 'msg' + (kind ? ' msg--' + kind : '');
+  }
+
+  function readFile(input) {
+    const file = input.files && input.files[0];
+    if (!file) return Promise.reject(new Error('파일을 고르세요.'));
+    return file.text();
+  }
+
+  function download(name, text) {
+    const blob = new Blob([text], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = name;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  /* 1. 열기 */
+  $('open-go').addEventListener('click', async () => {
+    const msg = $('open-msg');
+    say(msg, '여는 중…');
+    try {
+      const vault = JSON.parse(await readFile($('open-file')));
+      const { data } = await Vault.openWithPassword(vault, $('open-pw').value);
+      $('plain').value = JSON.stringify(data, null, 2);
+      $('open-pw').value = '';
+      say(msg, '열었습니다. 아래에서 편집하세요.', 'ok');
+    } catch (e) {
+      say(msg, e.message === 'wrong-password'
+        ? '비밀번호가 맞지 않습니다.'
+        : '열지 못했습니다: ' + e.message, 'error');
+    }
+  });
+
+  /* 2. 편집 */
+  $('load-plain').addEventListener('click', () => $('plain-file').click());
+
+  $('plain-file').addEventListener('change', async () => {
+    try {
+      $('plain').value = await readFile($('plain-file'));
+      say($('plain-msg'), '불러왔습니다.', 'ok');
+    } catch (e) {
+      say($('plain-msg'), e.message, 'error');
+    }
+  });
+
+  $('save-plain').addEventListener('click', () => {
+    try {
+      JSON.parse($('plain').value);
+      download('isles.json', $('plain').value);
+      say($('plain-msg'),
+        '내려받았습니다. assets/data/isles.json에 두세요. 이 파일은 커밋하지 않습니다.', 'ok');
+    } catch (e) {
+      say($('plain-msg'), 'JSON 형식이 잘못됐습니다: ' + e.message, 'error');
+    }
+  });
+
+  /* 3. 잠그기 */
+  $('lock-go').addEventListener('click', async () => {
+    const msg = $('lock-msg');
+    const pw = $('new-pw').value;
+
+    if (pw !== $('new-pw2').value) {
+      return say(msg, '두 비밀번호가 다릅니다.', 'error');
+    }
+    if (pw.length < 12) {
+      return say(msg, '비밀번호가 짧습니다. 12자 이상으로 해 주세요.', 'error');
+    }
+
+    let data;
+    try {
+      data = JSON.parse($('plain').value);
+    } catch (e) {
+      return say(msg, 'JSON 형식이 잘못됐습니다: ' + e.message, 'error');
+    }
+
+    say(msg, '잠그는 중… (몇 초 걸립니다)');
+    try {
+      const vault = await Vault.create(data, pw);
+
+      // 만든 자리에서 바로 다시 열어 본다. 못 여는 파일을 넘기는 사고를 막는다.
+      const check = await Vault.openWithPassword(vault, pw);
+      if (JSON.stringify(check.data) !== JSON.stringify(data)) {
+        throw new Error('검증 실패 — 내용이 일치하지 않습니다');
+      }
+
+      download('isles.enc', JSON.stringify(vault));
+      $('new-pw').value = $('new-pw2').value = '';
+      say(msg, '만들었습니다. 열어보는 것까지 확인했습니다.', 'ok');
+    } catch (e) {
+      say(msg, '실패: ' + e.message, 'error');
+    }
+  });
+})();
+</script>
+</body>
+</html>

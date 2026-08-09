@@ -1,19 +1,28 @@
 #!/usr/bin/env python3
-"""사이트 목록에 있는 주소들의 파비콘을 내려받아 assets/icons/에 저장한다.
-
-Private Isles는 아이콘을 외부에서 실시간으로 불러오지 않는다. 그러면 페이지를
-열 때마다 내 링크 목록의 도메인이 외부로 새기 때문이다. 그래서 미리 받아둔다.
+"""사이트 아이콘을 받아 isles.json 안에 직접 박아 넣는다.
 
     python tools/fetch_icons.py
 
-isles.json의 각 항목에 icon 경로를 채워 넣는다. 이미 icon이 적혀 있는 항목은
-직접 지정한 것으로 보고 건드리지 않는다.
+아이콘을 assets/icons/ 같은 폴더에 따로 두지 않는 이유가 있다. 그렇게 하면
+데이터를 암호화해도 소용이 없다. 파일 이름(github.png)이 목록을 그대로
+알려주고, 이름을 해시로 바꿔도 이미지를 열어 보면 어느 사이트인지 드러난다.
+그래서 아이콘을 data URI로 만들어 isles.json 안에 넣는다. 이 파일이 통째로
+암호화되므로 아이콘도 같이 잠긴다.
 
-표준 라이브러리만 쓴다. 설치할 것 없다.
+용량이 곧 페이지 무게이므로 64px PNG로 줄여서 넣는다.
+
+각 항목의 icon 필드는 이렇게 다룬다.
+    data:... 로 시작   이미 처리된 것. 건드리지 않는다.
+    파일 경로          그 파일을 읽어 넣는다. 직접 만든 아이콘을 쓸 때.
+    비어 있음          사이트에서 받아온다.
+
+필요한 것: Pillow (pip install Pillow)
 """
 
 from __future__ import annotations
 
+import base64
+import io
 import json
 import pathlib
 import re
@@ -28,27 +37,23 @@ for stream in (sys.stdout, sys.stderr):
     if hasattr(stream, "reconfigure"):
         stream.reconfigure(encoding="utf-8", errors="replace")
 
+try:
+    from PIL import Image
+except ImportError:
+    print("Pillow가 필요합니다.  pip install Pillow", file=sys.stderr)
+    raise SystemExit(1)
+
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 DATA = ROOT / "assets" / "data" / "isles.json"
-ICON_DIR = ROOT / "assets" / "icons"
 
 UA = "Mozilla/5.0 (compatible; private-isles-icon-fetcher)"
 TIMEOUT = 10
-
-# 확장자를 정하는 데만 쓴다. 없으면 .ico로 떨어뜨린다.
-EXT_BY_TYPE = {
-    "image/png": ".png",
-    "image/x-icon": ".ico",
-    "image/vnd.microsoft.icon": ".ico",
-    "image/svg+xml": ".svg",
-    "image/jpeg": ".jpg",
-    "image/webp": ".webp",
-    "image/gif": ".gif",
-}
+SIZE = 64          # 격자에서 실제로 쓰이는 크기
+SVG_MAX = 20000    # 이보다 큰 SVG는 굳이 안 쓴다
 
 
 def get(url: str) -> tuple[bytes, str] | None:
-    """URL을 받아 (본문, Content-Type)을 돌려준다. 실패하면 None."""
+    """URL을 받아 (본문, Content-Type). 실패하면 None."""
     request = urllib.request.Request(url, headers={"User-Agent": UA})
     try:
         with urllib.request.urlopen(request, timeout=TIMEOUT) as response:
@@ -58,7 +63,7 @@ def get(url: str) -> tuple[bytes, str] | None:
 
 
 def icon_links_in(page_html: str, base: str) -> list[str]:
-    """HTML의 <link rel="...icon..."> 들을 절대 주소로 바꿔 돌려준다."""
+    """HTML의 <link rel="...icon">들을 절대 주소로 바꿔 돌려준다."""
     found = []
     for tag in re.findall(r"<link\b[^>]*>", page_html, flags=re.I):
         if not re.search(r'rel\s*=\s*["\'][^"\']*icon', tag, flags=re.I):
@@ -70,87 +75,70 @@ def icon_links_in(page_html: str, base: str) -> list[str]:
 
 
 def candidates_for(url: str) -> list[str]:
-    """시도해 볼 파비콘 주소들을 순서대로 만든다.
+    """시도해 볼 아이콘 주소들.
 
-    사이트에 직접 물어본다. 외부 아이콘 서비스를 거치지 않으므로 내 링크
-    목록이 제3자에게 새지 않는다.
+    사이트에 직접 물어본다. 외부 아이콘 서비스를 거치지 않으므로 어떤 사이트를
+    모아 뒀는지가 제3자에게 새지 않는다.
     """
     parts = urllib.parse.urlsplit(url)
     origin = f"{parts.scheme}://{parts.netloc}"
 
     urls: list[str] = []
 
-    # 1순위: 홈페이지 HTML이 직접 가리키는 아이콘 (보통 가장 예쁘다)
     page = get(origin)
     if page and "html" in page[1].lower():
-        try:
-            urls += icon_links_in(page[0].decode("utf-8", "ignore"), origin)
-        except Exception:
-            pass
+        urls += icon_links_in(page[0].decode("utf-8", "ignore"), origin)
 
-    # 2순위: 관례적인 위치
-    urls += [
-        f"{origin}/apple-touch-icon.png",
-        f"{origin}/favicon.ico",
-    ]
+    urls += [f"{origin}/apple-touch-icon.png", f"{origin}/favicon.ico"]
 
-    # 순서를 지키면서 중복만 제거
-    return list(dict.fromkeys(urls))
+    return list(dict.fromkeys(urls))  # 순서 유지하며 중복 제거
 
 
-def sniff_ext(body: bytes) -> str | None:
-    """파일 앞부분을 보고 진짜 형식을 알아낸다. 모르겠으면 None."""
-    if body[:4] == b"\x89PNG":
-        return ".png"
-    if body[:4] == b"\x00\x00\x01\x00":
-        return ".ico"
-    if body[:2] == b"\xff\xd8":
-        return ".jpg"
-    if body[:3] == b"GIF":
-        return ".gif"
-    if body[:4] == b"RIFF" and body[8:12] == b"WEBP":
-        return ".webp"
+def to_data_uri(body: bytes) -> str | None:
+    """이미지 바이트를 64px PNG data URI로 만든다. 못 읽으면 None."""
     head = body[:200].lstrip().lower()
+
+    # SVG는 벡터라 줄일 필요가 없다. 그대로 쓴다.
     if head.startswith(b"<svg") or (head.startswith(b"<?xml") and b"<svg" in head):
-        return ".svg"
-    return None
+        if len(body) > SVG_MAX:
+            return None
+        return "data:image/svg+xml;base64," + base64.b64encode(body).decode()
+
+    try:
+        image = Image.open(io.BytesIO(body))
+        # .ico 안에는 여러 크기가 들어 있다. 가장 큰 것을 골라 줄이는 편이
+        # 작은 것을 늘리는 것보다 깨끗하다.
+        if getattr(image, "n_frames", 1) > 1 and image.format == "ICO":
+            image = Image.open(io.BytesIO(body))
+        image = image.convert("RGBA")
+        image.thumbnail((SIZE, SIZE), Image.LANCZOS)
+
+        # 정사각 캔버스 가운데에 놓아 격자에서 크기가 들쭉날쭉하지 않게 한다.
+        canvas = Image.new("RGBA", (SIZE, SIZE), (0, 0, 0, 0))
+        canvas.paste(
+            image,
+            ((SIZE - image.width) // 2, (SIZE - image.height) // 2),
+            image,
+        )
+
+        buffer = io.BytesIO()
+        canvas.save(buffer, format="PNG", optimize=True)
+        return "data:image/png;base64," + base64.b64encode(buffer.getvalue()).decode()
+    except Exception:
+        return None
 
 
-def slugify(name: str, url: str) -> str:
-    """파일 이름으로 쓸 안전한 문자열. 이름이 한글이면 도메인을 쓴다."""
-    slug = re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
-    if not slug:
-        host = urllib.parse.urlsplit(url).netloc
-        slug = re.sub(r"[^a-z0-9]+", "-", host.lower()).strip("-")
-    return slug or "site"
-
-
-def fetch_one(name: str, url: str) -> str | None:
-    """아이콘을 받아 저장하고, 사이트 기준 경로를 돌려준다."""
+def fetch_for(url: str) -> str | None:
     for candidate in candidates_for(url):
         result = get(candidate)
         if not result:
             continue
-        body, content_type = result
-
-        # 너무 작으면 깨진 응답이거나 1x1 자리표시자다.
+        body = result[0]
         if len(body) < 100:
             continue
-        if body[:15].lstrip()[:14].lower().startswith(b"<!doctype html"):
-            continue
-
-        # 확장자는 내용을 보고 정한다. 서버가 붙여 준 Content-Type이나 주소의
-        # 확장자는 자주 틀린다. (PNG를 favicon.ico로 주는 사이트가 흔하다.)
-        ext = sniff_ext(body)
-        if ext is None:
-            media = content_type.split(";")[0].strip().lower()
-            ext = EXT_BY_TYPE.get(media, ".ico")
-
-        ICON_DIR.mkdir(parents=True, exist_ok=True)
-        filename = slugify(name, url) + ext
-        (ICON_DIR / filename).write_bytes(body)
-        return f"assets/icons/{filename}"
-
+        uri = to_data_uri(body)
+        if uri:
+            return uri
     return None
 
 
@@ -162,24 +150,40 @@ def main() -> int:
     data = json.loads(DATA.read_text(encoding="utf-8"))
     sites = data.get("sites", [])
 
-    fetched, kept, failed = 0, 0, []
+    embedded, kept, failed = 0, 0, []
 
     for site in sites:
-        name, url = site.get("name", ""), site.get("url", "")
+        name = site.get("name", "")
+        url = site.get("url", "")
+        icon = site.get("icon", "")
+
+        if icon.startswith("data:"):
+            kept += 1
+            print(f"  건너뜀  {name}")
+            continue
+
+        # 파일 경로가 적혀 있으면 그 파일을 쓴다. 직접 만든 아이콘용.
+        if icon:
+            path = (ROOT / icon).resolve()
+            uri = to_data_uri(path.read_bytes()) if path.exists() else None
+            if uri:
+                site["icon"] = uri
+                embedded += 1
+                print(f"  넣음    {name} ← {icon}")
+            else:
+                failed.append(name)
+                print(f"  실패    {name} ← {icon} (파일을 읽을 수 없음)")
+            continue
+
         if not url:
             continue
 
-        if site.get("icon"):
-            kept += 1
-            print(f"  건너뜀  {name} — 아이콘이 이미 지정됨")
-            continue
-
         print(f"  받는 중  {name} …", end="", flush=True)
-        path = fetch_one(name, url)
-        if path:
-            site["icon"] = path
-            fetched += 1
-            print(f" {path}")
+        uri = fetch_for(url)
+        if uri:
+            site["icon"] = uri
+            embedded += 1
+            print(f" {len(uri) // 1024}KB")
         else:
             failed.append(name)
             print(" 실패")
@@ -188,13 +192,16 @@ def main() -> int:
         json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
     )
 
-    print(f"\n받음 {fetched} · 유지 {kept} · 실패 {len(failed)}")
+    size = DATA.stat().st_size
+    print(f"\n넣음 {embedded} · 유지 {kept} · 실패 {len(failed)}")
+    print(f"isles.json 크기 {size / 1024:.0f}KB")
+
     if failed:
-        print("\n아래 사이트는 아이콘을 못 찾았습니다.")
-        print("직접 만든 파일을 assets/icons/에 넣고 isles.json의 icon에 적어 주세요.")
+        print("\n아이콘을 못 구한 항목:")
         for name in failed:
             print(f"  - {name}")
-        print("\n비워 두면 이름 첫 글자 배지가 대신 표시됩니다.")
+        print("\n비워 두면 이름 첫 글자 배지가 나옵니다.")
+        print("직접 만든 파일을 쓰려면 icon에 그 파일 경로를 적고 다시 돌리세요.")
 
     return 0
 

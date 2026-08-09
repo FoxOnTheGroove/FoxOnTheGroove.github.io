@@ -18,10 +18,45 @@
 
 <main class="isles">
   <h1 class="isles__title">private isles</h1>
-  <ul class="pad" id="pad"></ul>
+
+  <!-- 잠금 화면 -->
+  <section class="lock" id="lock" hidden>
+    <button class="lock__bio" id="unlock-bio" type="button" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+           stroke-linecap="round" aria-hidden="true">
+        <path d="M12 4a8 8 0 0 0-8 8v2M20 14v-2a8 8 0 0 0-4-6.9"/>
+        <path d="M8 12a4 4 0 0 1 8 0v4M16 19v1"/>
+        <path d="M12 12v6M8 16v2"/>
+      </svg>
+      지문으로 열기
+    </button>
+
+    <form class="lock__form" id="pw-form">
+      <label class="sr-only" for="pw">비밀번호</label>
+      <input class="lock__input" id="pw" type="password" autocomplete="current-password"
+             placeholder="비밀번호" enterkeyhint="go">
+      <button class="lock__go" type="submit">열기</button>
+    </form>
+
+    <p class="lock__msg" id="lock-msg"></p>
+  </section>
+
+  <!-- 잠금이 풀린 뒤 -->
+  <section id="vault" hidden>
+    <ul class="pad" id="pad"></ul>
+
+    <div class="isles__foot">
+      <p class="isles__grace" id="grace-note"></p>
+      <button class="isles__action" id="register-bio" type="button" hidden>
+        이 기기에 지문 등록
+      </button>
+      <button class="isles__action" id="lock-now" type="button">지금 잠그기</button>
+    </div>
+  </section>
 </main>
 
 <script src="/assets/js/content.js"></script>
+<script src="/assets/js/vault.js"></script>
 <script src="/assets/js/isles.js"></script>
 </body>
 </html>

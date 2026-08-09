@@ -94,3 +94,92 @@
   .pad__icon { max-width: 68px; }
   .pad__name { font-size: 0.75rem; }
 }
+
+/* --- 잠금 화면 ----------------------------------------------------------- */
+
+.lock {
+  max-width: 17rem;
+  margin: var(--sp-16) auto 0;
+  text-align: center;
+}
+
+.lock__bio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  width: 100%;
+  padding: var(--sp-6);
+  margin-bottom: var(--sp-6);
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+.lock__bio:hover { border-color: var(--border-strong); color: var(--text); }
+.lock__bio svg { width: 34px; height: 34px; }
+
+.lock__form { display: flex; gap: var(--sp-2); }
+
+.lock__input {
+  flex: 1;
+  min-width: 0;
+  padding: var(--sp-3);
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.9375rem;
+}
+.lock__input:focus { outline: none; border-color: var(--accent); }
+
+.lock__go {
+  flex-shrink: 0;
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--accent);
+  border: 0;
+  border-radius: var(--radius);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.lock__msg {
+  margin-top: var(--sp-4);
+  font-size: 0.8125rem;
+  color: var(--text-faint);
+  min-height: 1.2em;
+}
+.lock__msg--error { color: #c4483f; }
+
+/* --- 잠금 해제 뒤 아래쪽 --------------------------------------------------- */
+
+.isles__foot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-top: var(--sp-16);
+  padding-top: var(--sp-6);
+  border-top: 1px solid var(--border);
+}
+
+.isles__grace { font-size: 0.75rem; color: var(--text-faint); margin: 0; }
+
+.isles__action {
+  padding: var(--sp-2) var(--sp-4);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+.isles__action:hover { border-color: var(--border-strong); color: var(--text); }
+.isles__action:disabled { opacity: 0.5; cursor: default; }
